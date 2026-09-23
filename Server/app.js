@@ -15,7 +15,7 @@ function checkAdmin(req,res,next){
   return res.send(`
   <html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
   body{font-family:Arial;background:#0a1931;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}
-  .box{background:white;padding:30px;border-radius:15px;max-width:400px;width:90%;text-align:center}
+ .box{background:white;padding:30px;border-radius:15px;max-width:400px;width:90%;text-align:center}
   input{width:100%;padding:12px;margin:10px 0;border-radius:8px;border:1px solid #ccc}button{background:#0a1931;color:#ffcc00;padding:12px;width:100%;border:none;border-radius:8px;font-weight:bold}
   </style></head><body><div class="box"><h2>🔐 Admin Login</h2><input id="p" type="password" placeholder="Password"><button onclick="login()">Login</button><br><br><a href="/">Back</a></div>
   <script>function login(){ location.href='/view-db?key='+document.getElementById('p').value; }</script></body></html>`);
@@ -27,7 +27,7 @@ html{scroll-behavior:smooth}*{margin:0;padding:0;box-sizing:border-box}body{font
 .nav{background:#0a1931;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:fixed;top:0;width:100%;z-index:1000}
 .nav h1{color:#ffcc00;font-size:18px}.menu{display:flex;gap:18px}.menu a{color:white;text-decoration:none;font-weight:bold;font-size:14px}
 .drop{position:relative}.drop-menu{display:none;position:absolute;top:100%;left:0;background:white;min-width:200px;border-radius:8px;box-shadow:0 5px 15px rgba(0,0,0,0.3)}
-.drop-menu a{color:#0a1931!important;padding:12px;display:block}.drop:hover .drop-menu{display:block}
+.drop-menu a{color:#0a1931!important;padding:12px;display:block}.drop:hover.drop-menu{display:block}
 .hero{margin-top:60px;background:#0a1931;color:white;padding:90px 20px;text-align:center}
 .hero h2{font-size:40px;color:#ffcc00}.btn{background:#ffcc00;color:#0a1931;padding:12px 25px;border-radius:25px;text-decoration:none;font-weight:bold;display:inline-block;margin:10px}
 .section{padding:50px 20px;max-width:1100px;margin:auto}.section h2{text-align:center;color:#0a1931}
@@ -85,7 +85,15 @@ input,textarea,select{width:100%;padding:12px;margin:6px 0;border-radius:8px;bor
 <h2>Contact Us</h2>
 <div class="contact">
 <div><h3 style="color:#ffcc00">Head Office</h3><br><p>442/443 Kironde Rd, Kampala</p><p>Branch: Kotido, Karamoja</p><br><p>Phone: 0754 139726</p><p>Email: info@pinnaclegroup.co.ug</p></div>
-<div style="background:white;padding:20px;border-radius:10px"><h3 style="color:#0a1931">Send Message</h3><input id="n" placeholder="Name"><input id="e" placeholder="Phone/Email"><textarea id="m" rows="3" placeholder="Message"></textarea><button onclick="sendMsg()" style="background:#0a1931;color:#ffcc00">Send</button><p id="ok" style="display:none;color:green;margin-top:10px">✅ Sent!</p></div>
+<div style="background:white;padding:20px;border-radius:10px">
+<h3 style="color:#0a1931">Send Message</h3>
+<input id="n" placeholder="Name">
+<input id="e" placeholder="Phone / Email">
+<select id="s"><option value="">Select Service</option><option>Security Guard Service</option><option>Construction Security</option><option>CCTV Installation</option><option>VIP Protection</option><option>Other</option></select>
+<textarea id="m" rows="3" placeholder="Message"></textarea>
+<button onclick="sendMsg()" style="background:#0a1931;color:#ffcc00">Send</button>
+<p id="ok" style="display:none;color:green;margin-top:10px">✅ Sent!</p>
+</div>
 </div>
 </div>
 
@@ -93,28 +101,46 @@ input,textarea,select{width:100%;padding:12px;margin:6px 0;border-radius:8px;bor
 
 <script>
 async function sendMsg(){
- let n=document.getElementById('n').value,e=document.getElementById('e').value,m=document.getElementById('m').value;
+ let n=document.getElementById('n').value,
+     e=document.getElementById('e').value,
+     s=document.getElementById('s').value,
+     m=document.getElementById('m').value;
  if(!n||!e||!m) return alert('Fill all');
- let r=await fetch('/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,email:e,message:m})});
+ let contactInfo = e + (s? ' | Service: ' + s : '');
+ let r=await fetch('/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,email:contactInfo,message:m})});
  let d=await r.json(); if(d.success) document.getElementById('ok').style.display='block';
 }
 </script></body></html>`;
 
 app.get('/',(req,res)=>res.send(site));
 app.get('/client',(req,res)=>res.send(site));
+
 app.get('/view-db',checkAdmin,(req,res)=>{
  safeQuery("SELECT * FROM contacts ORDER BY id DESC",[],(err,contacts)=>{
   if(err) return res.send("DB Error "+err.message);
-  let rows=contacts.map(c=>`<tr><td>${c.id}</td><td>${c.name}</td><td>${c.email}</td><td>${c.message}</td><td>${c.date_added}</td></tr>`).join('');
-  res.send(`<body style="font-family:Arial;padding:20px"><h2>Admin - ${contacts.length} Messages</h2><a href="/">Website</a> | <a href="/">Logout</a><br><br><table border=1 cellpadding=10 style="border-collapse:collapse;width:100%"><tr style="background:#0a1931;color:#ffcc00"><th>ID</th><th>Name</th><th>Contact</th><th>Message</th><th>Date</th></tr>${rows}</table></body>`);
+  let rows=contacts.map(c=>{
+    let contact = c.email;
+    let service = "Not Selected";
+    if(c.email.includes("|")){
+      let parts = c.email.split("|");
+      contact = parts[0].trim();
+      if(parts[1]) service = parts[1].replace("Service:","").trim();
+    }
+    return `<tr><td>${c.id}</td><td>${c.name}</td><td>${contact}</td><td style="background:#fff9c4;font-weight:bold;color:#0a1931">${service}</td><td>${c.message}</td><td style="font-size:12px">${c.date_added}</td></tr>`;
+  }).join('');
+  res.send(`<body style="font-family:Arial;padding:20px;background:#f5f7fa">
+  <h2>Admin - ${contacts.length} Messages</h2>
+  <p><a href="/">View Website</a> | <a href="/">Logout</a></p><br>
+  <table border=1 cellpadding=10 style="border-collapse:collapse;width:100%;background:white">
+  <tr style="background:#0a1931;color:#ffcc00"><th>ID</th><th>Name</th><th>Contact</th><th>Service</th><th>Message</th><th>Date</th></tr>
+  ${rows}</table></body>`);
  });
 });
+
 app.post('/contacts',(req,res)=>{
  const {name,email,message}=req.body;
  safeQuery("INSERT INTO contacts (name,email,message) VALUES (?,?,?)",[name,email,message],(err)=>{ if(err) return res.json({error:err.message}); res.json({success:true}); });
 });
+
 const PORT=process.env.PORT||10000;
 app.listen(PORT,'0.0.0.0',()=>console.log(PORT));
-`;
-
-**Push it:**

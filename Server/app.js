@@ -8,28 +8,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- AUTO CREATE TABLES IN CLEVER CLOUD ---
-const createTables = `
+// --- AUTO CREATE TABLES ONE BY ONE ---
+db.query(`
 CREATE TABLE IF NOT EXISTS names (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+)`, (err) => {
+  if(err) console.log("names table error:", err.message);
+  else console.log("names table ready!");
+});
+
+db.query(`
 CREATE TABLE IF NOT EXISTS contacts (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255),
   email VARCHAR(255),
   message TEXT,
   date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-`;
-
-db.query(createTables, (err) => {
-  if(err) console.log("Table creation error:", err);
-  else console.log("Tables names and contacts ready!");
+)`, (err) => {
+  if(err) console.log("contacts table error:", err.message);
+  else console.log("contacts table ready!");
 });
 
-// --- HOMEPAGE ---
 app.get('/', (req,res)=>{
  res.json({
    message: "Pinnacle Security Limited API is Running! 🔐",
@@ -71,7 +72,6 @@ app.get('/contacts', (req,res)=>{
  db.query("SELECT * FROM contacts ORDER BY id DESC",(err,result)=>{ if(err) return res.json({error:err.message}); res.json(result); });
 });
 
-// --- FIXED PORT FOR RENDER ---
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', ()=>{
   console.log('Server running on port', PORT);

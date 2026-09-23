@@ -1,4 +1,7 @@
 [build]
-  base = "Client"
-  command = "npm run build"
-  publish = "dist"
+  publish = "Client"
+
+[[redirects]]
+  from = "/*"
+  to = "/Index.html"
+  status = 200

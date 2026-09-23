@@ -8,34 +8,39 @@ let db; try{ db=require('./dbserver'); }catch(e){}
 function safeQuery(sql,params,cb){ if(!db) return cb(new Error("DB not connected"),null); db.query(sql,params,(err,res)=>{ if(err) return cb(err,null); cb(null,res); }); }
 
 const ADMIN_PASSWORD = "Pinnacle@2026";
+const LOGO_URL = "https://images.seeklogo.com/logo-png/49/2/pinnacle-security-limited-logo-png_seeklogo-549748.png";
+
 function checkAdmin(req,res,next){
   const key = req.query.key;
   if(key === ADMIN_PASSWORD) return next();
-  return res.send(`<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:'Poppins',sans-serif;background:#0a192f;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}.box{background:white;padding:30px;border-radius:24px;max-width:400px;width:90%;text-align:center}input{width:100%;padding:16px;margin:10px 0;border-radius:14px;border:2px solid #e2e8f0}button{background:#0a192f;color:#ffcc00;padding:16px;width:100%;border:none;border-radius:14px;font-weight:700;cursor:pointer}</style></head><body><div class="box"><h2>🔐 Admin Login</h2><input id="p" type="password" placeholder="Password"><button onclick="login()">Login</button><br><br><a href="/">Back</a></div><script>function login(){ location.href='/view-db?key='+document.getElementById('p').value; }</script></body></html>`);
+  return res.send(`<html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&display=swap');body{font-family:'Poppins',sans-serif;background:#0a192f;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}.box{background:white;padding:35px;border-radius:24px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3)}input{width:100%;padding:16px;margin:10px 0;border-radius:14px;border:2px solid #e2e8f0}button{background:#0a192f;color:#ffcc00;padding:16px;width:100%;border:none;border-radius:14px;font-weight:800;cursor:pointer}img{width:110px;margin-bottom:15px}</style></head><body><div class="box"><img src="${LOGO_URL}"><h2>🔐 Admin Login</h2><input id="p" type="password" placeholder="Password"><button onclick="login()">Login</button><br><br><a href="/">Back to Website</a></div><script>function login(){ location.href='/view-db?key='+document.getElementById('p').value; }</script></body></html>`);
 }
 
 const site = `<!DOCTYPE html><html><head><title>Pinnacle Security Limited - Professional Security in Uganda</title><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" href="${LOGO_URL}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;scroll-behavior:smooth;}
 body{background:#f8fafc;color:#0f172a;line-height:1.6}
-.navbar{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:16px 6%;background:rgba(10,25,47,0.98);z-index:999;box-shadow:0 4px 30px rgba(0,0,0,0.2);}
-.logo{font-weight:800;color:#ffcc00;font-size:18px;}
+.navbar{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:10px 6%;background:rgba(10,25,47,0.98);z-index:999;box-shadow:0 4px 30px rgba(0,0,0,0.2);}
+.logo{display:flex;align-items:center;gap:12px;font-weight:800;color:#ffcc00;font-size:18px;}
+.logo img{width:52px;height:52px;border-radius:12px;background:white;padding:4px;object-fit:contain}
 .nav-links{display:flex;list-style:none;gap:22px;align-items:center;}
 .nav-links a{color:#e2e8f0;text-decoration:none;font-size:14px;font-weight:500;transition:0.3s;}
 .nav-links a:hover{color:#ffcc00;}
 .btn-nav{background:#ffcc00;color:#0a192f!important;padding:9px 22px;border-radius:50px;font-weight:700!important;}
-.dropdown{position:relative;}
-.dropdown-menu{position:absolute;top:110%;left:0;background:#0a192f;list-style:none;min-width:260px;padding:12px 0;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);opacity:0;visibility:hidden;transform:translateY(10px);transition:0.3s;z-index:1000;}
-.dropdown:hover .dropdown-menu{opacity:1;visibility:visible;transform:translateY(0);}
+.dropdown{position:relative;}.dropdown-menu{position:absolute;top:110%;left:0;background:#0a192f;list-style:none;min-width:260px;padding:12px 0;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);opacity:0;visibility:hidden;transform:translateY(10px);transition:0.3s;z-index:1000;}
+.dropdown:hover.dropdown-menu{opacity:1;visibility:visible;transform:translateY(0);}
 .dropdown-menu a{display:block;padding:12px 22px;color:#cbd5e1!important;font-size:14px;}
-.hero{min-height:100vh;padding:140px 8% 80px;background:linear-gradient(105deg, #0a192f 65%, rgba(10,25,47,0.3)), url('https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=1400');background-size:cover;background-position:center;display:flex;align-items:center;}
-.hero-text{max-width:680px;}.hero-text h1{font-size:52px;color:white;line-height:1.1;font-weight:800;margin-bottom:18px;}.hero-text h1 span{color:#ffcc00}.hero-text p{color:#cbd5e1;font-size:17px;margin-bottom:12px;}
+.hero{min-height:100vh;padding:140px 8% 80px;background:linear-gradient(105deg, #0a192f 68%, rgba(10,25,47,0.2)), url('https://images.unsplash.com/photo-1557597774-9d273605dfa9?w=1400');background-size:cover;background-position:center;display:flex;align-items:center;}
+.hero-text{max-width:700px;}.hero-text.hero-logo{width:130px;background:white;padding:10px;border-radius:20px;margin-bottom:20px;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
+.hero-text h1{font-size:52px;color:white;line-height:1.1;font-weight:800;margin-bottom:18px;}.hero-text h1 span{color:#ffcc00}.hero-text p{color:#cbd5e1;font-size:17px;margin-bottom:12px;}
 .btn-main{background:#ffcc00;color:#0a192f;padding:14px 32px;border:none;border-radius:50px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block;transition:0.3s;box-shadow:0 8px 20px rgba(255,204,0,0.3);}
 .btn-main:hover{transform:translateY(-3px);}
 .btn-main-dark{background:#0a192f;color:#ffcc00;padding:16px;width:100%;border:none;border-radius:14px;font-weight:700;cursor:pointer;transition:0.3s;box-shadow:0 8px 20px rgba(0,0,0,0.15);font-size:16px;margin-top:12px;}
-.section{padding:90px 8%;}.section h2{font-size:36px;font-weight:800;text-align:center;margin-bottom:12px;}.section .sub{text-align:center;color:#64748b;max-width:700px;margin:0 auto 20px}
+.section{padding:90px 8%;}.section h2{font-size:36px;font-weight:800;text-align:center;margin-bottom:12px;display:flex;justify-content:center;align-items:center;gap:14px}.section h2 img{width:50px;background:white;border-radius:12px;padding:5px}.section.sub{text-align:center;color:#64748b;max-width:700px;margin:0 auto 20px}
 .section.dark{background:#0a192f;color:white;}
 .about-grid,.service-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-top:45px;}
 .card{background:white;border-radius:20px;padding:30px;box-shadow:0 10px 40px rgba(0,0,0,0.06);transition:0.4s;}.card:hover{transform:translateY(-8px);}
@@ -48,10 +53,12 @@ body{background:#f8fafc;color:#0f172a;line-height:1.6}
 .join-wrapper{background:white;padding:35px;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,0.1);max-width:800px;margin:40px auto 0}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .join-wrapper input,.join-wrapper select,.join-wrapper textarea, #contactForm input, #contactForm select, #contactForm textarea{width:100%;padding:16px 20px;margin:8px 0;border-radius:14px;border:2px solid #e2e8f0;background:#f8fafc;font-size:14px;font-weight:500;outline:none;}
-footer{text-align:center;padding:30px;background:#020c1b;color:#64748b;}
+footer{text-align:center;padding:35px;background:#020c1b;color:#64748b;}
+footer img{width:80px;background:white;padding:6px;border-radius:14px;margin-bottom:15px}
 @media(max-width:768px){.hero-text h1{font-size:34px;}.contact-grid{grid-template-columns:1fr;}.row{grid-template-columns:1fr;}.nav-links{display:none;}.section{padding:60px 5%}}
 </style></head><body>
-<nav class="navbar"><div class="logo">🔐 PINNACLE SECURITY LTD</div>
+
+<nav class="navbar"><div class="logo"><img src="${LOGO_URL}" alt="Logo"> PINNACLE SECURITY LTD</div>
 <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="#about">About</a></li>
 <li class="dropdown"><a href="#services">Services ▼</a>
 <ul class="dropdown-menu"><li><a href="#services">Guard Service</a></li><li><a href="#services">Construction Security</a></li><li><a href="#services">CCTV & Alarms</a></li><li><a href="#services">VIP Protection</a></li></ul></li>
@@ -59,6 +66,7 @@ footer{text-align:center;padding:30px;background:#020c1b;color:#64748b;}
 
 <div class="hero" id="home">
 <div class="hero-text">
+<img class="hero-logo" src="${LOGO_URL}" alt="Pinnacle Logo">
 <h1>Protecting What Matters <span>Most</span></h1>
 <p><b>Pinnacle Security Limited</b> is Uganda's trusted security company located at <b>442/443 Kironde Road, Kampala</b> with branch in Kotido, Karamoja.</p>
 <p>We provide licensed, disciplined and well-trained security guards for homes, businesses, construction sites, schools and events. With 4.3★ rating from 11+ clients, we operate 24 hours especially on Friday and have mobile patrol teams.</p>
@@ -70,7 +78,7 @@ footer{text-align:center;padding:30px;background:#020c1b;color:#64748b;}
 </div>
 
 <div class="section" id="about">
-<h2>About Pinnacle Security Limited</h2>
+<h2><img src="${LOGO_URL}"> About Pinnacle</h2>
 <p class="sub">Licensed under ISIC 8010 - Private Security Activities. We are committed to professionalism, integrity and quick response.</p>
 <div class="about-grid">
 <div class="card"><i class="fa-solid fa-shield-halved"></i><h3>Who We Are</h3><p>Pinnacle Security Limited started to provide affordable yet professional security in Uganda. We are located at 442/443 Kironde Rd, Kampala and serve all regions including Karamoja, Gulu, Pader, Kotido. We have trained guards with valid certificates.</p></div>
@@ -105,7 +113,7 @@ footer{text-align:center;padding:30px;background:#020c1b;color:#64748b;}
 </div>
 
 <div class="section" id="contact">
-<h2>Contact Us Today</h2>
+<h2><img src="${LOGO_URL}" style="width:45px;background:white;border-radius:10px;padding:4px"> Contact Us</h2>
 <p class="sub">Need guards urgently? Contact our control room 24hrs</p>
 <div class="contact-grid">
 <div>
@@ -116,7 +124,7 @@ footer{text-align:center;padding:30px;background:#020c1b;color:#64748b;}
 <p><b>Google Rating:</b> 4.3★ (11 Reviews)<br><b>ISIC Code:</b> 8010</p>
 </div>
 <div id="contactForm" style="background:white;padding:28px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.06)">
-<h3 style="text-align:center;margin-bottom:15px">Get Free Quote</h3>
+<h3 style="text-align:center;margin-bottom:15px;display:flex;justify-content:center;align-items:center;gap:10px"><img src="${LOGO_URL}" style="width:35px"> Get Free Quote</h3>
 <input id="n" placeholder="Your Name">
 <input id="e" placeholder="Phone / Email">
 <select id="s"><option>Select Service</option><option>Security Guard Service</option><option>Construction Security</option><option>CCTV Installation</option><option>VIP Protection</option></select>
@@ -131,7 +139,7 @@ footer{text-align:center;padding:30px;background:#020c1b;color:#64748b;}
 <h2>Join Pinnacle Security Team</h2>
 <p class="sub">We are recruiting guards from Kotido, Gulu, Pader, Abim, Moroto, Lira, Kampala. Age 22-45, able to read/write, disciplined.</p>
 <div class="join-wrapper">
-<h3 style="text-align:center;margin-bottom:20px;font-weight:800">Job Application Form</h3>
+<h3 style="text-align:center;margin-bottom:20px;font-weight:800;display:flex;justify-content:center;align-items:center;gap:10px"><img src="${LOGO_URL}" style="width:40px"> Job Application Form</h3>
 <div class="row"><input id="fname" placeholder="First Name*"><input id="lname" placeholder="Last Name*"></div>
 <div class="row"><select id="gender"><option value="">Gender*</option><option>Male</option><option>Female</option></select><input id="dob" type="date"></div>
 <div class="row"><input id="district" placeholder="District* e.g. Kotido"><input id="phone" placeholder="Phone*"></div>
@@ -142,7 +150,11 @@ footer{text-align:center;padding:30px;background:#020c1b;color:#64748b;}
 </div>
 </div>
 
-<footer><p>© 2026 Pinnacle Security Limited | 442/443 Kironde Rd, Kampala, Uganda | 0754 139726</p></footer>
+<footer>
+<img src="${LOGO_URL}" alt="Logo">
+<p>© 2026 Pinnacle Security Limited | 442/443 Kironde Rd, Kampala, Uganda | 0754 139726</p>
+<p style="margin-top:8px;font-size:12px">Professional Security Guard Service | Construction Security | CCTV | VIP Protection</p>
+</footer>
 
 <script>
 async function sendMsg(){let n=document.getElementById('n').value,e=document.getElementById('e').value,s=document.getElementById('s').value,m=document.getElementById('m').value;if(!n||!e||!m)return alert('Fill all');let c=e+' | Service: '+s;let r=await fetch('/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,email:c,message:m})});let d=await r.json();if(d.success)document.getElementById('ok').style.display='block';}
@@ -152,7 +164,6 @@ async function sendJoin(){let fname=document.getElementById('fname').value,lname
 app.get('/',(req,res)=>res.send(site));
 safeQuery("CREATE TABLE IF NOT EXISTS joiners (id INT AUTO_INCREMENT PRIMARY KEY, fname VARCHAR(255), lname VARCHAR(255), gender VARCHAR(20), dob VARCHAR(50), district VARCHAR(100), phone VARCHAR(100), edu VARCHAR(100), exp TEXT, date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",[],()=>{});
 
-// ===== CENTERED + ASC ADMIN PANEL =====
 app.get('/view-db',checkAdmin,(req,res)=>{
  safeQuery("SELECT * FROM contacts ORDER BY id ASC",[],(err,contacts)=>{
   safeQuery("SELECT * FROM joiners ORDER BY id ASC",[],(err2,joiners)=>{
@@ -165,76 +176,62 @@ app.get('/view-db',checkAdmin,(req,res)=>{
      let year = date.getFullYear();
      let hours = String(date.getHours()).padStart(2,'0');
      let mins = String(date.getMinutes()).padStart(2,'0');
-     return `${year}-${month}-${day} ${hours}:${mins}`;
+     return \`\${year}-\${month}-\${day} \${hours}:\${mins}\`;
    }
    let rows=contacts.map((c,i)=>{
      let contact=c.email; let service="Not Selected";
      if(c.email.includes("|")){ let p=c.email.split("|"); contact=p[0].trim(); if(p[1]) service=p[1].replace("Service:","").trim(); }
-     return `<tr><td>${i+1}</td><td>${c.name}</td><td>${contact}</td><td>${service}</td><td>${c.message}</td><td>${formatDate(c.date_added)}</td></tr>`;
+     return \`<tr><td>\${i+1}</td><td>\${c.name}</td><td>\${contact}</td><td>\${service}</td><td>\${c.message}</td><td>\${formatDate(c.date_added)}</td></tr>\`;
    }).join('');
-   let jrows=(joiners||[]).map((j,i)=>`<tr><td>${i+1}</td><td>${j.fname} ${j.lname}</td><td>${j.gender}</td><td>${j.dob}</td><td>${j.district}</td><td>${j.phone}</td><td>${j.edu}</td><td>${j.exp}</td><td>${formatDate(j.date_added)}</td></tr>`).join('');
+   let jrows=(joiners||[]).map((j,i)=>\`<tr><td>\${i+1}</td><td>\${j.fname} \${j.lname}</td><td>\${j.gender}</td><td>\${j.dob}</td><td>\${j.district}</td><td>\${j.phone}</td><td>\${j.edu}</td><td>\${j.exp}</td><td>\${formatDate(j.date_added)}</td></tr>\`).join('');
 
-   res.send(`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Panel</title>
+   res.send(\`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Panel</title>
+   <link rel="icon" href="${LOGO_URL}">
    <style>
    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
    *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
    body{background:#f8fafc;padding:20px;display:flex;justify-content:center}
-   .container{width:100%;max-width:1250px;margin:0 auto}
-   h2{font-size:34px;font-weight:800;text-align:center;margin:20px 0;display:flex;justify-content:center;align-items:center;gap:10px}
-   .top-btns{display:flex;justify-content:center;gap:15px;margin:20px 0;flex-wrap:wrap}
-   .badge{padding:14px 26px;border-radius:50px;text-decoration:none;font-weight:800;font-size:15px;display:inline-block;box-shadow:0 4px 15px rgba(0,0,0,0.1);text-align:center}
+  .container{width:100%;max-width:1250px;margin:0 auto}
+   h2{font-size:34px;font-weight:800;text-align:center;margin:20px 0;display:flex;justify-content:center;align-items:center;gap:14px}
+   h2 img{width:60px;background:white;border-radius:14px;padding:5px;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+  .top-btns{display:flex;justify-content:center;gap:15px;margin:20px 0;flex-wrap:wrap}
+  .badge{padding:14px 26px;border-radius:50px;text-decoration:none;font-weight:800;font-size:15px;display:inline-block;box-shadow:0 4px 15px rgba(0,0,0,0.1);text-align:center}
    h3{font-size:22px;font-weight:800;text-align:center;margin:40px 0 15px}
-   .search-wrap{display:flex;justify-content:center;margin:10px 0 20px}
-   .search-box{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;width:100%;max-width:900px}
-   .search-box input,.search-box select{padding:14px 20px;border-radius:50px;border:2px solid #e2e8f0;min-width:180px;font-size:14px;text-align:center}
-   .search-box input:focus{border-color:#0a192f;outline:none}
-   .table-wrap{display:flex;justify-content:center;overflow-x:auto}
+  .search-wrap{display:flex;justify-content:center;margin:10px 0 20px}
+  .search-box{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;width:100%;max-width:900px}
+  .search-box input,.search-box select{padding:14px 20px;border-radius:50px;border:2px solid #e2e8f0;min-width:180px;font-size:14px;text-align:center}
+  .table-wrap{display:flex;justify-content:center;overflow-x:auto}
    table{width:100%;border-collapse:collapse;background:white;border-radius:16px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.08);text-align:center}
-   th{background:#0a192f;color:#ffcc00;padding:14px 10px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+   th{background:#0a192f;color:#ffcc00;padding:14px 10px;font-size:11px;text-transform:uppercase}
    td{padding:12px 8px;border-bottom:1px solid #f1f5f9;font-size:13px}
    tr:hover{background:#f1f5f9}
    td:first-child{font-weight:800;background:#f8fafc;color:#0a192f;width:60px}
    </style></head><body>
    <div class="container">
-   <h2>🔐 Admin Panel</h2>
+   <h2><img src="${LOGO_URL}"> Admin Panel</h2>
    <div class="top-btns">
-     <a href="#clients" class="badge" style="background:#0a192f;color:#ffcc00">Client Requests (${contacts.length})</a>
-     <a href="#joiners" class="badge" style="background:#ffcc00;color:#0a192f">Job Applications (${(joiners||[]).length})</a>
+     <a href="#clients" class="badge" style="background:#0a192f;color:#ffcc00">Client Requests (\${contacts.length})</a>
+     <a href="#joiners" class="badge" style="background:#ffcc00;color:#0a192f">Job Applications (\${(joiners||[]).length})</a>
      <a href="/" class="badge" style="background:white;color:#0a192f;border:2px solid #0a192f">← Website</a>
    </div>
 
-   <h3 id="clients">📩 Client Requests - ${contacts.length}</h3>
+   <h3 id="clients">📩 Client Requests - \${contacts.length}</h3>
    <div class="search-wrap"><div class="search-box"><input type="text" id="searchClient" onkeyup="filterClients()" placeholder="🔍 Search Name, Contact, Service"></div></div>
-   <div class="table-wrap"><table id="clientTable"><tr><th>No.</th><th>Name</th><th>Contact</th><th>Service</th><th>Message</th><th>Date & Time (24h)</th></tr>${rows}</table></div>
+   <div class="table-wrap"><table id="clientTable"><tr><th>No.</th><th>Name</th><th>Contact</th><th>Service</th><th>Message</th><th>Date & Time (24h)</th></tr>\${rows}</table></div>
 
-   <h3 id="joiners">👥 Job Applications - ${contacts.length ? '' : ''}${(joiners||[]).length}</h3>
+   <h3 id="joiners">👥 Job Applications - \${(joiners||[]).length}</h3>
    <div class="search-wrap"><div class="search-box">
      <input type="text" id="searchDistrict" onkeyup="filterJoiners()" placeholder="🔍 District e.g. KOTIDO">
      <select id="filterGender" onchange="filterJoiners()"><option value="">All Gender</option><option>Male</option><option>Female</option></select>
      <select id="filterEdu" onchange="filterJoiners()"><option value="">All Education</option><option>Primary</option><option>Secondary (S4)</option><option>Advanced (S6)</option><option>Certificate</option><option>Diploma</option><option>Degree</option><option>Masters</option></select>
      <input type="text" id="searchJoinerName" onkeyup="filterJoiners()" placeholder="🔍 Name / Phone">
    </div></div>
-   <div class="table-wrap"><table id="joinerTable"><tr><th>No.</th><th>Full Name</th><th>Gender</th><th>DOB</th><th>District</th><th>Phone</th><th>Education</th><th>Experience</th><th>Date (24h)</th></tr>${jrows}</table></div>
+   <div class="table-wrap"><table id="joinerTable"><tr><th>No.</th><th>Full Name</th><th>Gender</th><th>DOB</th><th>District</th><th>Phone</th><th>Education</th><th>Experience</th><th>Date (24h)</th></tr>\${jrows}</table></div>
    </div>
    <script>
-   function filterClients(){
-     let input = document.getElementById('searchClient').value.toLowerCase();
-     let rows = document.querySelectorAll('#clientTable tr');
-     for(let i=1;i<rows.length;i++){ rows[i].style.display = rows[i].innerText.toLowerCase().includes(input) ? '' : 'none'; }
-   }
-   function filterJoiners(){
-     let district = document.getElementById('searchDistrict').value.toLowerCase();
-     let gender = document.getElementById('filterGender').value.toLowerCase();
-     let edu = document.getElementById('filterEdu').value.toLowerCase();
-     let name = document.getElementById('searchJoinerName').value.toLowerCase();
-     let rows = document.querySelectorAll('#joinerTable tr');
-     for(let i=1;i<rows.length;i++){
-       let t = rows[i].innerText.toLowerCase();
-       let ok = (district==''||t.includes(district)) && (gender==''||t.includes(gender)) && (edu==''||t.includes(edu)) && (name==''||t.includes(name));
-       rows[i].style.display = ok ? '' : 'none';
-     }
-   }
-   </script></body></html>`);
+   function filterClients(){let input=document.getElementById('searchClient').value.toLowerCase();let rows=document.querySelectorAll('#clientTable tr');for(let i=1;i<rows.length;i++){rows[i].style.display=rows[i].innerText.toLowerCase().includes(input)?'':'none';}}
+   function filterJoiners(){let district=document.getElementById('searchDistrict').value.toLowerCase();let gender=document.getElementById('filterGender').value.toLowerCase();let edu=document.getElementById('filterEdu').value.toLowerCase();let name=document.getElementById('searchJoinerName').value.toLowerCase();let rows=document.querySelectorAll('#joinerTable tr');for(let i=1;i<rows.length;i++){let t=rows[i].innerText.toLowerCase();let ok=(district==''||t.includes(district))&&(gender==''||t.includes(gender))&&(edu==''||t.includes(edu))&&(name==''||t.includes(name));rows[i].style.display=ok?'':'none';}}
+   </script></body></html>\`);
   });
  });
 });

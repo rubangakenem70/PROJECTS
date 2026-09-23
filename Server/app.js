@@ -28,7 +28,7 @@ body{background:#f8fafc;color:#0f172a;}
 .btn-nav{background:#ffcc00;color:#0a192f!important;padding:9px 22px;border-radius:50px;font-weight:700!important;}
 .dropdown{position:relative;}
 .dropdown-menu{position:absolute;top:110%;left:0;background:#0a192f;list-style:none;min-width:260px;padding:12px 0;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);opacity:0;visibility:hidden;transform:translateY(10px);transition:0.3s;z-index:1000;}
-.dropdown:hover.dropdown-menu{opacity:1;visibility:visible;transform:translateY(0);}
+.dropdown:hover .dropdown-menu{opacity:1;visibility:visible;transform:translateY(0);}
 .dropdown-menu a{display:block;padding:12px 22px;color:#cbd5e1!important;font-size:14px;}
 .hero{min-height:90vh;padding:140px 8% 80px;background:linear-gradient(105deg, #0a192f 90%, rgba(10,25,47,0.7)), url('https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1400');background-size:cover;background-position:center;display:flex;align-items:center;}
 .hero-text{max-width:650px;}.hero-text h1{font-size:52px;color:white;line-height:1.1;font-weight:800;margin-bottom:18px;}.hero-text p{color:#cbd5e1;font-size:18px;margin-bottom:32px;}
@@ -67,39 +67,83 @@ app.get('/view-db',checkAdmin,(req,res)=>{
  safeQuery("SELECT * FROM contacts ORDER BY id DESC",[],(err,contacts)=>{
   safeQuery("SELECT * FROM joiners ORDER BY id DESC",[],(err2,joiners)=>{
    if(err) return res.send("DB Error "+err.message);
-
    function formatDate(d){
      if(!d) return "";
      let date = new Date(d);
-     // Convert to EAT (Uganda is UTC+3)
      let day = String(date.getDate()).padStart(2,'0');
      let month = String(date.getMonth()+1).padStart(2,'0');
      let year = date.getFullYear();
      let hours = String(date.getHours()).padStart(2,'0');
      let mins = String(date.getMinutes()).padStart(2,'0');
-     let secs = String(date.getSeconds()).padStart(2,'0');
-     return `${year}-${month}-${day} ${hours}:${mins}:${secs}`;
+     return `${year}-${month}-${day} ${hours}:${mins}`;
    }
-
    let rows=contacts.map(c=>{
      let contact=c.email; let service="Not Selected";
      if(c.email.includes("|")){ let p=c.email.split("|"); contact=p[0].trim(); if(p[1]) service=p[1].replace("Service:","").trim(); }
-     // NO COLOR STYLE HERE - plain
      return `<tr><td>${c.id}</td><td>${c.name}</td><td>${contact}</td><td>${service}</td><td>${c.message}</td><td>${formatDate(c.date_added)}</td></tr>`;
    }).join('');
-
    let jrows=(joiners||[]).map(j=>`<tr><td>${j.id}</td><td>${j.fname} ${j.lname}</td><td>${j.gender}</td><td>${j.dob}</td><td>${j.district}</td><td>${j.phone}</td><td>${j.edu}</td><td>${j.exp}</td><td>${formatDate(j.date_added)}</td></tr>`).join('');
 
-   res.send(`<body style="font-family:'Poppins',sans-serif;padding:20px;background:#f8fafc">
-   <h2>Admin Panel</h2>
-   <div style="margin:15px 0"><a href="#clients" style="background:#0a192f;color:#ffcc00;padding:10px 15px;text-decoration:none;border-radius:10px">Client Requests (${contacts.length})</a>
-   <a href="#joiners" style="background:#ffcc00;color:#0a192f;padding:10px 15px;text-decoration:none;border-radius:10px;margin-left:10px">Job Applications (${(joiners||[]).length})</a>
-   <a href="/" style="float:right">Website</a></div>
+   res.send(`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+   body{font-family:'Poppins',sans-serif;padding:20px;background:#f8fafc}
+   .search-box{display:flex;gap:10px;margin:12px 0 20px;flex-wrap:wrap}
+   .search-box input,.search-box select{padding:12px 16px;border-radius:12px;border:2px solid #e2e8f0;min-width:180px;font-size:13px}
+   .search-box input:focus,.search-box select:focus{border-color:#0a192f;outline:none}
+   table{width:100%;border-collapse:collapse;background:white;margin-bottom:40px;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.05)}
+   th{background:#0a192f;color:#ffcc00;padding:12px 8px;font-size:11px;text-align:left}
+   td{padding:10px 8px;border-bottom:1px solid #f1f5f9;font-size:13px}
+   tr:hover{background:#f8fafc}
+   .badge{padding:10px 15px;border-radius:10px;text-decoration:none;font-weight:700;display:inline-block;font-size:13px}
+   </style></head><body>
+   <h2>🔐 Admin Panel</h2>
+   <div style="margin:15px 0">
+   <a href="#clients" class="badge" style="background:#0a192f;color:#ffcc00">Client Requests (${contacts.length})</a>
+   <a href="#joiners" class="badge" style="background:#ffcc00;color:#0a192f;margin-left:10px">Job Applications (${(joiners||[]).length})</a>
+   <a href="/" style="float:right;color:#0a192f;font-weight:bold;text-decoration:none">← Website</a>
+   </div>
+
    <h3 id="clients">📩 Client Requests - ${contacts.length}</h3>
-   <table border=1 cellpadding=10 style="border-collapse:collapse;width:100%;background:white;margin-bottom:30px"><tr style="background:#0a192f;color:#ffcc00"><th>ID</th><th>Name</th><th>Contact</th><th>Service</th><th>Message</th><th>Date & Time (24hrs)</th></tr>${rows}</table>
+   <div class="search-box">
+     <input type="text" id="searchClient" onkeyup="filterClients()" placeholder="🔍 Search Name, Contact, Service...">
+   </div>
+   <table id="clientTable"><tr><th>ID</th><th>Name</th><th>Contact</th><th>Service</th><th>Message</th><th>Date & Time (24h)</th></tr>${rows}</table>
+
    <h3 id="joiners">👥 Job Applications - ${(joiners||[]).length}</h3>
-   <table border=1 cellpadding=10 style="border-collapse:collapse;width:100%;background:white"><tr style="background:#0a192f;color:#ffcc00"><th>ID</th><th>Full Name</th><th>Gender</th><th>DOB</th><th>District</th><th>Phone</th><th>Education</th><th>Experience</th><th>Date & Time (24hrs)</th></tr>${jrows}</table>
-   </body>`);
+   <div class="search-box">
+     <input type="text" id="searchDistrict" onkeyup="filterJoiners()" placeholder="🔍 District e.g. GULU">
+     <select id="filterGender" onchange="filterJoiners()"><option value="">All Gender</option><option>Male</option><option>Female</option></select>
+     <select id="filterEdu" onchange="filterJoiners()"><option value="">All Education</option><option>Primary</option><option>Secondary (S4)</option><option>Advanced (S6)</option><option>Certificate</option><option>Diploma</option><option>Degree</option><option>Masters</option></select>
+     <input type="text" id="searchJoinerName" onkeyup="filterJoiners()" placeholder="🔍 Name or Phone...">
+   </div>
+   <table id="joinerTable"><tr><th>ID</th><th>Full Name</th><th>Gender</th><th>DOB</th><th>District</th><th>Phone</th><th>Education</th><th>Experience</th><th>Date & Time (24h)</th></tr>${jrows}</table>
+
+   <script>
+   function filterClients(){
+     let input = document.getElementById('searchClient').value.toLowerCase();
+     let rows = document.querySelectorAll('#clientTable tr');
+     for(let i=1;i<rows.length;i++){
+       let text = rows[i].innerText.toLowerCase();
+       rows[i].style.display = text.includes(input) ? '' : 'none';
+     }
+   }
+   function filterJoiners(){
+     let district = document.getElementById('searchDistrict').value.toLowerCase();
+     let gender = document.getElementById('filterGender').value.toLowerCase();
+     let edu = document.getElementById('filterEdu').value.toLowerCase();
+     let name = document.getElementById('searchJoinerName').value.toLowerCase();
+     let rows = document.querySelectorAll('#joinerTable tr');
+     for(let i=1;i<rows.length;i++){
+       let rowText = rows[i].innerText.toLowerCase();
+       let okDistrict = district=='' || rowText.includes(district);
+       let okGender = gender=='' || rowText.includes(gender);
+       let okEdu = edu=='' || rowText.includes(edu);
+       let okName = name=='' || rowText.includes(name);
+       rows[i].style.display = (okDistrict && okGender && okEdu && okName) ? '' : 'none';
+     }
+   }
+   </script>
+   </body></html>`);
   });
  });
 });

@@ -51,7 +51,6 @@ body{background:#f8fafc;color:#0f172a;line-height:1.6}
 footer{text-align:center;padding:30px;background:#020c1b;color:#64748b;}
 @media(max-width:768px){.hero-text h1{font-size:34px;}.contact-grid{grid-template-columns:1fr;}.row{grid-template-columns:1fr;}.nav-links{display:none;}.section{padding:60px 5%}}
 </style></head><body>
-
 <nav class="navbar"><div class="logo">🔐 PINNACLE SECURITY LTD</div>
 <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="#about">About</a></li>
 <li class="dropdown"><a href="#services">Services ▼</a>
@@ -113,8 +112,8 @@ footer{text-align:center;padding:30px;background:#020c1b;color:#64748b;}
 <h3 style="color:#0a192f">📍 Head Office</h3><br>
 <p>442/443 Kironde Road, Off Ntinda-Kiwatule Road<br>Kampala, Uganda</p><br>
 <p><b>Branch Office:</b> Kotido District, Karamoja Sub-region</p><br>
-<p>📞 <b>Phone:</b> 0754 139726 / 0773 XXX XXX<br>✉️ <b>Email:</b> info@pinnaclegroup.co.ug<br>🕒 <b>Control Room:</b> 24 Hours (Friday full operation)</p><br>
-<p><b>Google Rating:</b> 4.3★ (11 Reviews)<br><b>ISIC Code:</b> 8010<br><b>Parking:</b> Wheelchair Accessible</p>
+<p>📞 <b>Phone:</b> 0754 139726<br>✉️ <b>Email:</b> info@pinnaclegroup.co.ug<br>🕒 <b>Control Room:</b> 24 Hours</p><br>
+<p><b>Google Rating:</b> 4.3★ (11 Reviews)<br><b>ISIC Code:</b> 8010</p>
 </div>
 <div id="contactForm" style="background:white;padding:28px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.06)">
 <h3 style="text-align:center;margin-bottom:15px">Get Free Quote</h3>
@@ -143,7 +142,7 @@ footer{text-align:center;padding:30px;background:#020c1b;color:#64748b;}
 </div>
 </div>
 
-<footer><p>© 2026 Pinnacle Security Limited | 442/443 Kironde Rd, Kampala, Uganda | 0754 139726 | info@pinnaclegroup.co.ug</p><p style="margin-top:8px;font-size:12px">Professional Security Guard Service | Construction Security | CCTV | VIP Protection</p></footer>
+<footer><p>© 2026 Pinnacle Security Limited | 442/443 Kironde Rd, Kampala, Uganda | 0754 139726</p></footer>
 
 <script>
 async function sendMsg(){let n=document.getElementById('n').value,e=document.getElementById('e').value,s=document.getElementById('s').value,m=document.getElementById('m').value;if(!n||!e||!m)return alert('Fill all');let c=e+' | Service: '+s;let r=await fetch('/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,email:c,message:m})});let d=await r.json();if(d.success)document.getElementById('ok').style.display='block';}
@@ -153,6 +152,7 @@ async function sendJoin(){let fname=document.getElementById('fname').value,lname
 app.get('/',(req,res)=>res.send(site));
 safeQuery("CREATE TABLE IF NOT EXISTS joiners (id INT AUTO_INCREMENT PRIMARY KEY, fname VARCHAR(255), lname VARCHAR(255), gender VARCHAR(20), dob VARCHAR(50), district VARCHAR(100), phone VARCHAR(100), edu VARCHAR(100), exp TEXT, date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",[],()=>{});
 
+// ===== CENTERED + ASC ADMIN PANEL =====
 app.get('/view-db',checkAdmin,(req,res)=>{
  safeQuery("SELECT * FROM contacts ORDER BY id ASC",[],(err,contacts)=>{
   safeQuery("SELECT * FROM joiners ORDER BY id ASC",[],(err2,joiners)=>{
@@ -165,45 +165,57 @@ app.get('/view-db',checkAdmin,(req,res)=>{
      let year = date.getFullYear();
      let hours = String(date.getHours()).padStart(2,'0');
      let mins = String(date.getMinutes()).padStart(2,'0');
-     return \`\${year}-\${month}-\${day} \${hours}:\${mins}\`;
+     return `${year}-${month}-${day} ${hours}:${mins}`;
    }
    let rows=contacts.map((c,i)=>{
      let contact=c.email; let service="Not Selected";
      if(c.email.includes("|")){ let p=c.email.split("|"); contact=p[0].trim(); if(p[1]) service=p[1].replace("Service:","").trim(); }
-     return \`<tr><td>\${i+1}</td><td>\${c.name}</td><td>\${contact}</td><td>\${service}</td><td>\${c.message}</td><td>\${formatDate(c.date_added)}</td></tr>\`;
+     return `<tr><td>${i+1}</td><td>${c.name}</td><td>${contact}</td><td>${service}</td><td>${c.message}</td><td>${formatDate(c.date_added)}</td></tr>`;
    }).join('');
-   let jrows=(joiners||[]).map((j,i)=>\`<tr><td>\${i+1}</td><td>\${j.fname} \${j.lname}</td><td>\${j.gender}</td><td>\${j.dob}</td><td>\${j.district}</td><td>\${j.phone}</td><td>\${j.edu}</td><td>\${j.exp}</td><td>\${formatDate(j.date_added)}</td></tr>\`).join('');
+   let jrows=(joiners||[]).map((j,i)=>`<tr><td>${i+1}</td><td>${j.fname} ${j.lname}</td><td>${j.gender}</td><td>${j.dob}</td><td>${j.district}</td><td>${j.phone}</td><td>${j.edu}</td><td>${j.exp}</td><td>${formatDate(j.date_added)}</td></tr>`).join('');
 
-   res.send(\`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-   body{font-family:'Poppins',sans-serif;padding:20px;background:#f8fafc}
-   .search-box{display:flex;gap:10px;margin:12px 0 20px;flex-wrap:wrap}
-   .search-box input,.search-box select{padding:12px 16px;border-radius:12px;border:2px solid #e2e8f0;min-width:180px;font-size:13px}
-   table{width:100%;border-collapse:collapse;background:white;margin-bottom:40px;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.05)}
-   th{background:#0a192f;color:#ffcc00;padding:12px 8px;font-size:11px;text-align:left}
-   td{padding:10px 8px;border-bottom:1px solid #f1f5f9;font-size:13px}
-   .badge{padding:10px 15px;border-radius:10px;text-decoration:none;font-weight:700;display:inline-block;font-size:13px}
+   res.send(`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Panel</title>
+   <style>
+   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+   *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+   body{background:#f8fafc;padding:20px;display:flex;justify-content:center}
+   .container{width:100%;max-width:1250px;margin:0 auto}
+   h2{font-size:34px;font-weight:800;text-align:center;margin:20px 0;display:flex;justify-content:center;align-items:center;gap:10px}
+   .top-btns{display:flex;justify-content:center;gap:15px;margin:20px 0;flex-wrap:wrap}
+   .badge{padding:14px 26px;border-radius:50px;text-decoration:none;font-weight:800;font-size:15px;display:inline-block;box-shadow:0 4px 15px rgba(0,0,0,0.1);text-align:center}
+   h3{font-size:22px;font-weight:800;text-align:center;margin:40px 0 15px}
+   .search-wrap{display:flex;justify-content:center;margin:10px 0 20px}
+   .search-box{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;width:100%;max-width:900px}
+   .search-box input,.search-box select{padding:14px 20px;border-radius:50px;border:2px solid #e2e8f0;min-width:180px;font-size:14px;text-align:center}
+   .search-box input:focus{border-color:#0a192f;outline:none}
+   .table-wrap{display:flex;justify-content:center;overflow-x:auto}
+   table{width:100%;border-collapse:collapse;background:white;border-radius:16px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.08);text-align:center}
+   th{background:#0a192f;color:#ffcc00;padding:14px 10px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+   td{padding:12px 8px;border-bottom:1px solid #f1f5f9;font-size:13px}
+   tr:hover{background:#f1f5f9}
+   td:first-child{font-weight:800;background:#f8fafc;color:#0a192f;width:60px}
    </style></head><body>
-   <h2>🔐 Admin Panel - ASC Order (Oldest First)</h2>
-   <div style="margin:15px 0">
-   <a href="#clients" class="badge" style="background:#0a192f;color:#ffcc00">Client Requests (\${contacts.length})</a>
-   <a href="#joiners" class="badge" style="background:#ffcc00;color:#0a192f;margin-left:10px">Job Applications (\${(joiners||[]).length})</a>
-   <a href="/" style="float:right;color:#0a192f;font-weight:bold;text-decoration:none">← Website</a>
+   <div class="container">
+   <h2>🔐 Admin Panel</h2>
+   <div class="top-btns">
+     <a href="#clients" class="badge" style="background:#0a192f;color:#ffcc00">Client Requests (${contacts.length})</a>
+     <a href="#joiners" class="badge" style="background:#ffcc00;color:#0a192f">Job Applications (${(joiners||[]).length})</a>
+     <a href="/" class="badge" style="background:white;color:#0a192f;border:2px solid #0a192f">← Website</a>
    </div>
 
-   <h3 id="clients">📩 Client Requests - \${contacts.length} (Numbering 1,2,3... ASC)</h3>
-   <div class="search-box"><input type="text" id="searchClient" onkeyup="filterClients()" placeholder="🔍 Search Name, Contact, Service..."></div>
-   <table id="clientTable"><tr><th>No.</th><th>Name</th><th>Contact</th><th>Service</th><th>Message</th><th>Date & Time (24h)</th></tr>\${rows}</table>
+   <h3 id="clients">📩 Client Requests - ${contacts.length}</h3>
+   <div class="search-wrap"><div class="search-box"><input type="text" id="searchClient" onkeyup="filterClients()" placeholder="🔍 Search Name, Contact, Service"></div></div>
+   <div class="table-wrap"><table id="clientTable"><tr><th>No.</th><th>Name</th><th>Contact</th><th>Service</th><th>Message</th><th>Date & Time (24h)</th></tr>${rows}</table></div>
 
-   <h3 id="joiners">👥 Job Applications - \${(joiners||[]).length} (Numbering 1,2,3... ASC)</h3>
-   <div class="search-box">
+   <h3 id="joiners">👥 Job Applications - ${contacts.length ? '' : ''}${(joiners||[]).length}</h3>
+   <div class="search-wrap"><div class="search-box">
      <input type="text" id="searchDistrict" onkeyup="filterJoiners()" placeholder="🔍 District e.g. KOTIDO">
      <select id="filterGender" onchange="filterJoiners()"><option value="">All Gender</option><option>Male</option><option>Female</option></select>
      <select id="filterEdu" onchange="filterJoiners()"><option value="">All Education</option><option>Primary</option><option>Secondary (S4)</option><option>Advanced (S6)</option><option>Certificate</option><option>Diploma</option><option>Degree</option><option>Masters</option></select>
-     <input type="text" id="searchJoinerName" onkeyup="filterJoiners()" placeholder="🔍 Name or Phone...">
+     <input type="text" id="searchJoinerName" onkeyup="filterJoiners()" placeholder="🔍 Name / Phone">
+   </div></div>
+   <div class="table-wrap"><table id="joinerTable"><tr><th>No.</th><th>Full Name</th><th>Gender</th><th>DOB</th><th>District</th><th>Phone</th><th>Education</th><th>Experience</th><th>Date (24h)</th></tr>${jrows}</table></div>
    </div>
-   <table id="joinerTable"><tr><th>No.</th><th>Full Name</th><th>Gender</th><th>DOB</th><th>District</th><th>Phone</th><th>Education</th><th>Experience</th><th>Date & Time (24h)</th></tr>\${jrows}</table>
-
    <script>
    function filterClients(){
      let input = document.getElementById('searchClient').value.toLowerCase();
@@ -222,7 +234,7 @@ app.get('/view-db',checkAdmin,(req,res)=>{
        rows[i].style.display = ok ? '' : 'none';
      }
    }
-   </script></body></html>\`);
+   </script></body></html>`);
   });
  });
 });

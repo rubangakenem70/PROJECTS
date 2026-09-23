@@ -1,4 +1,5 @@
-const API = "http://localhost:3000";
+const API = "https://pinnacle-security-limited.onrender.com";
+
 document.addEventListener('DOMContentLoaded',()=>{
  loadData();
  document.getElementById('addbtn').onclick=addName;
@@ -12,7 +13,9 @@ document.addEventListener('DOMContentLoaded',()=>{
    if(r.success){ alert("✅ SAVED TO DB!"); e.target.reset(); }
  });
 });
+
 function loadData(){ fetch(`${API}/getall`).then(r=>r.json()).then(d=>{ console.log(d); renderTable(d); }); }
+
 function renderTable(data){
  const tbody=document.querySelector('#tb tbody');
  if(!data||data.length==0){ tbody.innerHTML='<tr><td colspan="5" style="color:black">No officers yet</td></tr>'; return; }
@@ -25,6 +28,7 @@ function renderTable(data){
        <td><button onclick="editRow(${row.id})">Edit</button></td>
      </tr>`).join('');
 }
+
 function addName(){
  const input=document.getElementById('nameinput');
  const name=input.value.trim();
@@ -32,6 +36,7 @@ function addName(){
  fetch(`${API}/insert`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})})
  .then(r=>r.json()).then(()=>{ input.value=""; loadData(); });
 }
+
 function deleteRow(id){ if(!confirm("Delete officer "+id+"?")) return; fetch(`${API}/delete/${id}`,{method:'DELETE'}).then(()=>loadData()); }
 function editRow(id){ const n=prompt("New officer name:"); if(!n) return; fetch(`${API}/update/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n})}).then(()=>loadData()); }
 function searchName(){ const q=document.getElementById('searchbar').value.trim(); if(!q) return loadData(); fetch(`${API}/search/${q}`).then(r=>r.json()).then(renderTable); }

@@ -4,15 +4,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-let db;
-try { 
-  db = require('./dbserver'); 
+let db, pool;
+try {
+  db = require('./dbserver'); // dbserver.js exports pool (callback)
+  pool = db.promise(); // Convert to promise for await
   console.log("✅ dbserver.js loaded");
-} catch(e){ 
-  console.log("DB not loaded yet:", e.message); 
+} catch(e){
+  console.log("DB not loaded yet:", e.message);
 }
 
-// Your frontend expects these exact links
+// --- OFFICERS API (your frontend) ---
 app.get('/getall', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM officers ORDER BY id DESC');
@@ -57,7 +58,44 @@ app.post('/contacts', async (req, res) => {
   } catch(e){ res.status(500).json({error: e.message}); }
 });
 
-app.get('/', (req, res) => res.json({ message: 'Pinnacle Security API LIVE ✅' }));
+// --- ADMIN PANEL - FIXED ---
+app.get('/view-db', async (req, res) => {
+  if(req.query.key!== 'Pinnacle@2026'){
+    return res.send('<h2 style="text-align:center;margin-top:100px;">🔐 Access Denied<br><br>Use: /view-db?key=Pinnacle@2026</h2>');
+  }
+  try {
+    const [officers] = await pool.query('SELECT * FROM officers ORDER BY id DESC');
+    const [messages] = await pool.query('SELECT * FROM messages ORDER BY id DESC');
 
-const PORT = process.env.PORT || 10000; // Render uses 10000
+    let html = `
+    <html><head><title>Pinnacle Admin</title>
+    <style>
+      body{font-family:Arial;background:#f4f4f4;padding:20px}
+     .container{max-width:1200px;margin:auto;background:white;padding:20px;border-radius:10px;box-shadow:0 0 10px #ccc}
+      table{width:100%;border-collapse:collapse;margin:20px 0}
+      th,td{border:1px solid #ddd;padding:10px;text-align:left}
+      th{background:#222;color:white}
+      h1{text-align:center}
+    </style>
+    </head><body>
+    <div class="container">
+    <h1>🔐 Admin Panel - Pinnacle Security</h1>
+    <h2>Officers (${officers.length})</h2>
+    <table><tr><th>ID</th><th>Name</th></tr>
+    ${officers.map(o=>`<tr><td>${o.id}</td><td>${o.name}</td></tr>`).join('')}
+    </table>
+    <h2>Messages (${messages.length})</h2>
+    <table><tr><th>ID</th><th>Name</th><th>Email</th><th>Message</th></tr>
+    ${messages.map(m=>`<tr><td>${m.id}</td><td>${m.name}</td><td>${m.email}</td><td>${m.message}</td></tr>`).join('')}
+    </table>
+    </div></body></html>`;
+    res.send(html);
+  } catch(e){
+    res.status(500).send('DB Error: ' + e.message);
+  }
+});
+
+app.get('/', (req, res) => res.json({ message: 'Pinnacle Security API LIVE ✅ - Use /view-db?key=Pinnacle@2026' }));
+
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Running Fixed ${PORT}`));

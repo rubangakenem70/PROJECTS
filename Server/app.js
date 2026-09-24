@@ -1,11 +1,16 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const pool = require('./db');
-
 const app = express();
-app.use(cors({ origin: '*' }));
+app.use(cors());
 app.use(express.json());
+
+let db;
+try { 
+  db = require('./dbserver'); 
+  console.log("✅ dbserver.js loaded");
+} catch(e){ 
+  console.log("DB not loaded yet:", e.message); 
+}
 
 // Your frontend expects these exact links
 app.get('/getall', async (req, res) => {
